@@ -13372,3 +13372,64 @@ body.mobile-full-table-open{overflow:hidden!important;}
   .mobile-full-table-label-grid{width:190px!important;min-width:190px!important;max-width:190px!important;}
   .mobile-full-table-label-grid tbody th{width:190px!important;min-width:190px!important;max-width:190px!important;}
 }
+
+/* =============================================================
+   RU REVISION 12 — isolated mobile full table in landscape
+   Keep the dedicated 12-month table visible when a phone rotates
+   past the desktop breakpoint. No KPI cards/charts/actions may bleed
+   through behind the fullscreen table surface.
+   ============================================================= */
+body.mobile-full-table-open{
+  overflow:hidden!important;
+  width:100%!important;
+  height:100dvh!important;
+}
+body.mobile-full-table-open > *:not(#mobileFullTableModal):not(script):not(style){
+  visibility:hidden!important;
+}
+body.mobile-full-table-open #mobileFullTableModal:not([hidden]){
+  display:block!important;
+  visibility:visible!important;
+  position:fixed!important;
+  inset:0!important;
+  width:100vw!important;
+  height:100dvh!important;
+  z-index:2147483000!important;
+  background:#eef3f8!important;
+  opacity:1!important;
+  isolation:isolate!important;
+}
+body.mobile-full-table-open #mobileFullTableModal:not([hidden]) *,
+body.mobile-full-table-open #mobileFullTableModal:not([hidden]) .mobile-full-table-shell{
+  visibility:visible!important;
+}
+body.mobile-full-table-open #mobileFullTableModal .mobile-full-table-shell{
+  position:absolute!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  max-width:none!important;
+  max-height:none!important;
+  background:#eef3f8!important;
+  overflow:hidden!important;
+}
+/* Override the old desktop-breakpoint safety rule while the mobile
+   table is already open. Rotation must not restore the desktop page. */
+@media (min-width:821px){
+  body.mobile-full-table-open #mobileFullTableModal:not([hidden]){
+    display:block!important;
+  }
+  body.mobile-full-table-open #mobileFullTableModal .mobile-full-table-head{
+    padding:6px 10px!important;
+  }
+  body.mobile-full-table-open #mobileFullTableModal .mobile-full-table-head h2{
+    font-size:14px!important;
+  }
+  body.mobile-full-table-open #mobileFullTableModal .mobile-full-table-head p,
+  body.mobile-full-table-open #mobileFullTableModal .mobile-full-table-orientation{
+    display:none!important;
+  }
+  body.mobile-full-table-open #mobileFullTableModal .mobile-full-table-scroll{
+    padding:5px!important;
+  }
+}
