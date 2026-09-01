@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+
+<html lang="ru-RU">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1, viewport-fit=cover" name="viewport"/>
+<title>Калькулятор инвестиций — франшиза сервиса «Максим»</title>
+<link href="styles.css" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+<div class="app-shell" id="app">
+<header class="topbar no-print topbar-compact">
+<div class="app-brand app-brand-top"><img alt="Maxim" class="brand-logo" src="assets/maxim-logo.svg"/></div>
+<div class="topbar-city-meta" id="topbarCityMeta"></div>
+<div class="actions-strip actions-strip-compact">
+<div aria-label="Управление калькулятором" class="top-action-pair" role="group">
+<button aria-label="Параметры" class="btn icon-btn parameters-trigger top-action-btn top-action-parameters" id="parametersBtn" title="Параметры" type="button">
+<svg aria-hidden="true" viewbox="0 0 24 24">
+<path d="M4 7h10M18 7h2M4 17h2M10 17h10M8 4v6M16 14v6"></path>
+<circle cx="8" cy="7" r="2"></circle><circle cx="16" cy="17" r="2"></circle>
+</svg>
+<span class="top-action-label" data-i18n="parameters">Параметры</span>
+</button>
+<button aria-label="Сменить город" class="btn icon-btn top-action-btn top-action-city" id="changeCityBtn" title="Сменить город" type="button">
+<svg aria-hidden="true" viewbox="0 0 24 24">
+<path d="M9 18l-6 3V6l6-3 6 3 6-3v15l-6 3-6-3z"></path>
+<path d="M9 3v15"></path>
+<path d="M15 6v15"></path>
+<circle cx="15" cy="10" r="2.2"></circle>
+<path d="M15 12.2c1.4-1.3 2.4-2.6 2.4-3.9A2.4 2.4 0 0 0 15 5.9a2.4 2.4 0 0 0-2.4 2.4c0 1.3 1 2.6 2.4 3.9z"></path>
+</svg>
+<span class="top-action-label" data-i18n="changeCity">Сменить город</span>
+</button>
+</div>
+<a aria-label="Обсудить расчёт в MAX" class="btn primary top-consult-cta" href="https://taxs.ee/maxbot" id="desktopConsultCta" rel="noopener noreferrer" target="_blank"><span class="max-cta-brand"><img alt="MAX" src="assets/max-cta.png"/></span><span>Обсудить в MAX</span></a></div>
+</header>
+<section class="start-screen no-print" id="startScreen">
+<div class="start-card">
+<div class="start-head">
+<div class="start-brand-copy start-brand-centered">
+<img alt="Maxim" class="start-logo" src="assets/maxim-logo.svg"/>
+<div class="start-copy-text">
+<h1 data-i18n="welcomeTitle">Выберите населённый пункт для расчёта инвестиций</h1>
+<p data-i18n="welcomeSubtitle">Выберите регион и населённый пункт. Численность населения и паушальный взнос будут подставлены автоматически.</p>
+</div>
+</div>
+</div>
+<div class="city-picker-panel">
+<div class="city-field">
+<label data-i18n="state" for="startStateSelect">Регион</label>
+<select id="startStateSelect"></select>
+</div>
+<div class="city-field">
+<label data-i18n="city" for="startCitySelect">Населённый пункт</label>
+<select id="startCitySelect"></select>
+</div>
+<button class="btn primary start-calc-btn" data-i18n="calculate" id="startCalculateBtn">Рассчитать</button>
+</div>
+<div class="city-table-card">
+<div class="city-table-title" data-i18n="availableCities">Доступные населённые пункты</div>
+<div class="city-table-wrap">
+<table class="city-table" id="cityTable"></table>
+</div>
+</div>
+</div>
+</section>
+<main class="dashboard-card" id="dashboard">
+<section class="hero-row">
+<div class="title-block title-block-branded">
+<div class="dashboard-title-line"><div><h1 data-i18n="title">ФИНАНСОВАЯ МОДЕЛЬ — РОССИЯ</h1>
+<p data-i18n="subtitle">Прогноз на 12 месяцев</p></div></div>
+<div class="selected-city-banner" id="selectedCityBanner"></div>
+</div>
+<div class="kpi-grid" id="kpiGrid"></div>
+</section><div class="forecast-disclaimer" id="forecastDisclaimer" role="note"><span aria-hidden="true" class="forecast-disclaimer-icon">i</span><div><strong>Расчётный прогноз</strong><span>Показатели сформированы на основе выбранных параметров и носят ориентировочный характер. Фактические результаты могут отличаться.</span></div></div>
+<section class="main-grid">
+<div class="model-column">
+<div class="model-table-wrap">
+<table class="model-table" id="modelTable"></table>
+</div>
+</div>
+<aside class="sidebar">
+<section class="side-card chart-card">
+<div class="chart-card-head">
+<h3 data-i18n="cashFlowOverview">ДИНАМИКА ДЕНЕЖНОГО ПОТОКА</h3>
+<button aria-label="Развернуть график" class="chart-expand-btn" id="openChartModal" title="Развернуть график" type="button"><span aria-hidden="true">⤢</span><span>Развернуть</span></button>
+</div>
+<div class="chart-box" id="cashFlowChartBox">
+<canvas id="cashFlowChart"></canvas>
+</div>
+<div aria-label="Управление рядами графика" class="chart-legend-inline chart-legend-below" id="chartLegendInline"></div>
+</section>
+<section class="side-card insights-card">
+<h3 data-i18n="keyInsights">КЛЮЧЕВЫЕ ВЫВОДЫ</h3>
+<div id="insightsList"></div>
+</section>
+<section class="side-card summary-card scenario-notes-host">
+<h3><span data-i18n="summary12">ИТОГИ ЗА 12 МЕСЯЦЕВ</span></h3>
+<div id="summaryList"></div>
+<div class="notes-popover">
+<div class="notes-popover-title" data-i18n="notes">ЗАМЕТКИ</div>
+<textarea id="notesArea" spellcheck="true"></textarea>
+</div>
+</section>
+</aside>
+</section>
+</main>
+</div>
+<section aria-label="Мобильный калькулятор инвестиций" class="mobile-app-shell" id="mobileApp">
+<section class="mobile-screen mobile-start-only" id="mobileStartScreen">
+<div class="mobile-start-card">
+<div class="mobile-start-title" data-i18n="welcomeTitle">Выберите населённый пункт для расчёта инвестиций</div>
+<div class="mobile-start-subtitle" data-i18n="welcomeSubtitle">Выберите регион и населённый пункт. Численность населения и паушальный взнос будут подставлены автоматически.</div>
+<div class="mobile-city-fields">
+<div class="mobile-field">
+<label data-i18n="state" for="mobileStateSelect">Регион</label>
+<select id="mobileStateSelect"></select>
+</div>
+<div class="mobile-field">
+<label data-i18n="city" for="mobileCitySelect">Населённый пункт</label>
+<select id="mobileCitySelect"></select>
+</div>
+<button class="mobile-primary-btn" data-i18n="calculate" id="mobileCalculateBtn" type="button">Рассчитать</button>
+</div>
+</div>
+</section>
+<section class="mobile-screen mobile-calc-screen" data-mobile-page="kpi" id="mobileKpiScreen"><div class="mobile-flow-progress">Результат · 1 из 5</div>
+<div class="mobile-screen-actions">
+<button aria-label="Параметры" class="mobile-icon-action mobile-parameters-action mobile-action-pill mobile-action-parameters" id="mobileParametersBtn" type="button">
+<svg aria-hidden="true" viewbox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10M8 4v6M16 14v6"></path><circle cx="8" cy="7" r="2"></circle><circle cx="16" cy="17" r="2"></circle></svg>
+<span class="mobile-action-label" data-i18n="parameters">Параметры</span>
+</button>
+<button aria-label="Сменить город" class="mobile-icon-action mobile-action-pill mobile-action-city" id="mobileChangeCityBtn" type="button">
+<svg aria-hidden="true" viewbox="0 0 24 24"><path d="M9 18l-6 3V6l6-3 6 3 6-3v15l-6 3-6-3z"></path><path d="M9 3v15M15 6v15"></path><circle cx="15" cy="10" r="2.2"></circle></svg>
+<span class="mobile-action-label" data-i18n="changeCity">Сменить город</span>
+</button>
+</div>
+<div class="mobile-kpi-content" id="mobileKpiContent"></div><div class="mobile-forecast-disclaimer" id="mobileForecastDisclaimer" role="note"><strong>Расчётный прогноз</strong><span>Показатели носят ориентировочный характер. Фактические результаты могут отличаться.</span></div><div aria-label="Финансовая модель по разделам" class="mobile-financial-accordion" id="mobileFinancialAccordion"></div>
+<button aria-label="Далее: График →" class="mobile-flow-nav mobile-flow-next" data-mobile-page-target="chart" type="button">Далее: График →</button>
+</section>
+<section class="mobile-screen mobile-calc-screen" data-mobile-page="chart" id="mobileChartScreen"><div class="mobile-flow-progress">Результат · 2 из 5</div>
+<button aria-label="← Показатели" class="mobile-flow-nav mobile-flow-prev" data-mobile-page-target="kpi" type="button">← Показатели</button>
+<div class="mobile-chart-card">
+<h2 data-i18n="cashFlowOverview">ДИНАМИКА ДЕНЕЖНОГО ПОТОКА</h2>
+<p class="mobile-chart-note" id="mobileChartNote"></p>
+<div class="mobile-chart-box"><canvas id="mobileCashFlowChart"></canvas></div>
+<div class="mobile-chart-legend" id="mobileChartLegend"></div>
+<button class="mobile-chart-expand-action" id="mobileOpenChartModal" type="button">Развернуть график ↗</button></div>
+<button aria-label="Далее: Выводы →" class="mobile-flow-nav mobile-flow-next" data-mobile-page-target="summary" type="button">Далее: Выводы →</button>
+</section>
+<section class="mobile-screen mobile-calc-screen" data-mobile-page="summary" id="mobileSummaryScreen"><div class="mobile-flow-progress">Результат · 3 из 5</div>
+<button aria-label="← График" class="mobile-flow-nav mobile-flow-prev" data-mobile-page-target="chart" type="button">← График</button>
+<div class="mobile-summary-stack mobile-insights-stack">
+<div class="mobile-info-panel mobile-insights-panel">
+<h2 data-i18n="keyInsights">КЛЮЧЕВЫЕ ВЫВОДЫ</h2>
+<div id="mobileStandaloneInsights"></div>
+</div>
+</div>
+<button aria-label="Далее: Итоги →" class="mobile-flow-nav mobile-flow-next" data-mobile-page-target="resumo" type="button">Далее: Итоги →</button>
+</section>
+<section class="mobile-screen mobile-calc-screen" data-mobile-page="resumo" id="mobileResumoScreen"><div class="mobile-flow-progress">Результат · 4 из 5</div>
+<button aria-label="← Выводы" class="mobile-flow-nav mobile-flow-prev" data-mobile-page-target="summary" type="button">← Выводы</button>
+<div class="mobile-summary-stack mobile-resumo-stack">
+<div class="mobile-info-panel mobile-resumo-panel">
+<h2 data-i18n="summary12">ИТОГИ ЗА 12 МЕСЯЦЕВ</h2>
+<div id="mobileStandaloneSummary"></div>
+</div>
+</div>
+<button aria-label="Далее: Консультация →" class="mobile-flow-nav mobile-flow-next" data-mobile-page-target="presentation" type="button">Далее: Консультация →</button>
+</section>
+<section class="mobile-screen mobile-calc-screen" data-mobile-page="presentation" id="mobilePresentationScreen"><div class="mobile-flow-progress">Результат · 5 из 5</div>
+<button aria-label="← Итоги" class="mobile-flow-nav mobile-flow-prev" data-mobile-page-target="resumo" type="button">← Итоги</button>
+<div class="mobile-presentation-stack">
+<div class="mobile-info-panel mobile-presentation-panel">
+<h2 id="mobilePresentationTitle">Что обсудим на консультации</h2>
+<p class="mobile-presentation-text" id="mobilePresentationText">Специалист сервиса «Максим» представит детальный план запуска в выбранном населённом пункте.</p>
+<ul class="mobile-presentation-list" id="mobilePresentationList"></ul>
+</div>
+<div class="mobile-info-panel mobile-final-cta-panel final-cta-section">
+<h2 id="mobileFinalCtaTitle">Хотите проверить расчёт со специалистом?</h2>
+<p class="mobile-presentation-text" id="mobileFinalCtaText">Оставьте заявку, чтобы обсудить условия и план запуска.</p>
+<a aria-label="Связаться в MAX" class="mobile-whatsapp-cta mobile-max-cta" href="https://taxs.ee/maxbot" id="mobileWhatsAppCta" rel="noopener noreferrer" target="_blank"><span class="max-cta-brand"><img alt="MAX" src="assets/max-cta.png"/></span><span>Обсудить в MAX</span></a>
+<p class="mobile-disclaimer" id="mobileDisclaimer">Расчёт носит ориентировочный характер и не является публичной офертой.</p>
+</div>
+</div>
+</section>
+</section>
+<div aria-hidden="true" class="parameters-modal no-print" hidden="" id="parametersModal">
+<div class="parameters-modal-backdrop" data-close-parameters-modal=""></div>
+<div aria-labelledby="parametersModalTitle" aria-modal="true" class="parameters-modal-panel" role="dialog">
+<div class="parameters-modal-head">
+<div>
+<h2 data-i18n="parameters" id="parametersModalTitle">Параметры</h2>
+<p data-i18n="parametersSubtitle">Настройте параметры сценария.</p>
+</div>
+<button aria-label="Закрыть" class="parameters-modal-close" data-close-parameters-modal="" type="button">×</button>
+</div>
+<div class="parameters-modal-body">
+<div class="parameters-fields parameter-groups-editable" id="parametersFields"><section class="parameter-group"><div class="parameter-group-head"><h3>Основные параметры</h3></div><div aria-label="Экономические параметры поездки" class="parameters-compact-pair" role="group">
+<label class="parameters-field parameters-field-compact" for="averageFareParameterInput">
+<span data-i18n="averageFareParameter">Средний чек поездки</span>
+<div class="parameters-input-affix"><span>₽</span><input id="averageFareParameterInput" inputmode="decimal" min="0.01" step="0.01" type="number"/></div>
+</label>
+<label class="parameters-field parameters-field-compact" for="driverCommissionParameterInput">
+<span data-i18n="driverCommissionParameter">Комиссия с водителей</span>
+<div class="parameters-input-affix parameters-input-percent"><input id="driverCommissionParameterInput" inputmode="decimal" max="50" min="0" step="0.1" type="number"/><span>%</span></div>
+</label>
+</div></section><section class="parameter-group"><div class="parameter-group-head"><h3>Операционная модель</h3></div><label class="recommended-toggle call-center-toggle" for="callCenterEnabledCheckbox">
+<input id="callCenterEnabledCheckbox" type="checkbox"/>
+<span>
+<strong data-i18n="callCenterWork">Работа с Контакт центром</strong>
+<small data-i18n="callCenterWorkHint">При включении учитываются надбавка «Оператор» и расходы на обработку заказов Контакт-центром.</small>
+</span>
+</label></section><section class="parameter-group"><div class="parameter-group-head"><h3>Реклама</h3></div><label class="parameters-field" for="annualInvestmentBudgetInput">
+<span data-i18n="annualDirectInvestmentBudget">Годовой бюджет рекламы</span>
+<div class="parameters-input-affix parameters-input-budget"><span>₽</span><input id="annualInvestmentBudgetInput" inputmode="numeric" autocomplete="off" type="text" aria-describedby="annualInvestmentBudgetHint"/></div>
+<small class="parameters-budget-hint" id="annualInvestmentBudgetHint">Введите сумму в рублях — разряды разделяются автоматически.</small>
+<small aria-live="polite" class="parameter-assessment" id="investmentBudgetAssessment"></small>
+</label></section></div><div class="parameters-model-note" data-i18n="parametersModelNote" id="parametersModelNote">Инвестиции влияют на спрос, выполненные заказы и финансовый результат. Исходные значения рассчитываются для выбранного города, но все параметры можно изменить вручную.</div>
+<div class="parameters-validation" hidden="" id="parametersValidation" role="alert"></div>
+</div>
+<div class="parameters-modal-footer">
+<button class="btn secondary" data-i18n="cancel" id="cancelParametersBtn" type="button">Отмена</button>
+<button class="btn primary" data-i18n="confirm" id="confirmParametersBtn" type="button">Применить</button>
+</div>
+</div>
+</div>
+<div aria-hidden="true" class="chart-modal" hidden="" id="chartModal">
+<div class="chart-modal-backdrop" data-close-chart-modal=""></div>
+<div aria-labelledby="chartModalTitle" aria-modal="true" class="chart-modal-panel" role="dialog">
+<div class="chart-modal-head">
+<div>
+<h2 data-i18n="cashFlowOverview" id="chartModalTitle">ДИНАМИКА ДЕНЕЖНОГО ПОТОКА</h2>
+<p data-i18n="chartSubtitle">Чистая прибыль партнёра и накопленный результат</p>
+</div>
+<button aria-label="Закрыть" class="chart-modal-close" data-close-chart-modal="" type="button">×</button>
+</div>
+<div class="chart-modal-box">
+<canvas id="cashFlowChartLarge"></canvas>
+</div>
+</div>
+</div>
+<script src="localization.js"></script>
+<script src="cities.js"></script>
+<script src="validation.js"></script>
+<script src="storage.js"></script>
+<script src="financial-engine.js"></script>
+<script src="scenario-manager.js"></script>
+<script src="animation.js"></script>
+<script src="charts.js"></script>
+<script src="ui-renderer.js"></script>
+<script src="real-cases.js"></script>
+<script src="app.js"></script>
+<script src="real-cases-ui.js"></script>
+<script src="mobile-table.js"></script>
+<div aria-hidden="true" class="ux-modal" hidden="" id="uxInfoModal">
+<div class="ux-modal-backdrop" data-close-ux-modal=""></div>
+<div aria-labelledby="uxInfoModalTitle" aria-modal="true" class="ux-modal-panel" role="dialog">
+<div class="ux-modal-head"><div><span class="ux-modal-eyebrow" id="uxInfoModalEyebrow"></span><h2 id="uxInfoModalTitle"></h2></div><button aria-label="Закрыть" class="ux-modal-close" data-close-ux-modal="" type="button">×</button></div>
+<div class="ux-modal-body" id="uxInfoModalBody"></div>
+</div>
+</div>
+<div aria-hidden="true" class="ux-modal advertising-modal" hidden="" id="advertisingModal">
+<div class="ux-modal-backdrop" data-close-advertising-modal=""></div>
+<div aria-labelledby="advertisingModalTitle" aria-modal="true" class="ux-modal-panel ux-modal-panel-wide" role="dialog">
+<div class="ux-modal-head"><div><span class="ux-modal-eyebrow">Инвестиции</span><h2 id="advertisingModalTitle">Реклама</h2><p>Главная регулярная инвестиция партнёра в развитие сервиса в городе.</p></div><button aria-label="Закрыть" class="ux-modal-close" data-close-advertising-modal="" type="button">×</button></div>
+<div class="ux-modal-body">
+<div class="advertising-intro-card"><strong>Почему реклама важна</strong><p>Реклама — главная регулярная инвестиция партнёра в развитие сервиса после запуска. Она помогает сформировать узнаваемость сервиса в городе, привлечь пассажиров и водителей и постепенно вывести подразделение на плановый объём заказов. В первые месяцы продвижение особенно важно, потому что сервис только формирует клиентскую и водительскую базу. По мере роста узнаваемости рекомендуемый объём рекламы постепенно снижается. Недостаточное продвижение может замедлить рост заказов, а чрезмерное увеличение бюджета не даёт пропорционального прироста спроса: потенциал каждого города ограничен размером рынка.</p></div>
+<div class="ux-action-grid"><button class="ux-feature-button" id="openAdvertisingPlan" type="button"><span>План размещения рекламы</span><small>Распределение активности на 12 месяцев</small><i>→</i></button><button class="ux-feature-button" id="openBrandGallery" type="button"><span>Брендбук</span><small>Примеры рекламных материалов</small><i>→</i></button></div>
+</div>
+</div>
+</div>
+<div aria-hidden="true" class="ux-modal advertising-plan-modal" hidden="" id="advertisingPlanModal">
+<div class="ux-modal-backdrop" data-close-advertising-plan-modal=""></div>
+<div aria-labelledby="advertisingPlanTitle" aria-modal="true" class="ux-modal-panel ux-modal-panel-extra-wide" role="dialog">
+<div class="ux-modal-head"><div><span class="ux-modal-eyebrow">Реклама</span><h2 id="advertisingPlanTitle">План размещения рекламы</h2><p>Рекомендуемое распределение фактического рекламного бюджета по инструментам на 12 месяцев.</p></div><button aria-label="Закрыть" class="ux-modal-close" data-close-advertising-plan-modal="" type="button">×</button></div>
+<div class="ux-modal-body"><div id="advertisingPlanSummary"></div><div class="advertising-plan-wrap" id="advertisingPlanTable"></div><p class="ux-plan-note">Общая сумма в каждом месяце полностью совпадает со строкой «Реклама» в финансовой модели. Конкретные площадки и размещения можно корректировать вместе с куратором с учётом особенностей населённого пункта.</p><button class="btn secondary ux-back-button" id="backToAdvertising" type="button">← Назад к рекламе</button></div>
+</div>
+</div>
+<div aria-hidden="true" class="ux-modal brand-gallery-modal" hidden="" id="brandGalleryModal">
+<div class="ux-modal-backdrop" data-close-gallery-modal=""></div>
+<div aria-labelledby="brandGalleryTitle" aria-modal="true" class="ux-modal-panel ux-modal-panel-wide" role="dialog">
+<div class="ux-modal-head"><div><span class="ux-modal-eyebrow">Реклама</span><h2 id="brandGalleryTitle">Брендбук</h2><p>Примеры рекламных размещений и форматов, которые партнёр может использовать в своём городе.</p></div><button aria-label="Закрыть" class="ux-modal-close" data-close-gallery-modal="" type="button">×</button></div>
+<div class="ux-modal-body"><p class="brandbook-intro">Партнёр может использовать различные рекламные инструменты в зависимости от размера города, доступных площадок и этапа развития сервиса. Конкретный набор размещений формируется с учётом рекламного бюджета и особенностей населённого пункта.</p><div class="brand-gallery-grid">
+<figure><img alt="Брендированный автомобиль" loading="lazy" src="assets/brandbook-ru/car-branding-user.jpg"/><figcaption><strong>Брендированный автомобиль</strong><span>Брендирование автомобилей делает сервис заметным в городе в течение всего дня. Машина становится мобильным рекламным носителем и повышает узнаваемость сервиса среди пассажиров и водителей.</span></figcaption></figure>
+<figure><img alt="Билборд Maxim" loading="lazy" src="assets/brandbook-ru/billboard.jpg"/><figcaption><strong>Билборды / сити-форматы</strong><span>Наружная реклама большого формата обеспечивает широкий охват аудитории. Особенно эффективна на оживлённых улицах, въездах в город и маршрутах с высоким трафиком.</span></figcaption></figure>
+<figure><img alt="Баннер Maxim" loading="lazy" src="assets/brandbook-ru/banner.jpg"/><figcaption><strong>Баннеры</strong><span>Баннеры размещаются на фасадах, ограждениях и других заметных городских объектах. Это доступный способ обеспечить постоянное визуальное присутствие бренда в выбранном районе.</span></figcaption></figure>
+<figure><img alt="Партнёрская реклама Maxim" loading="lazy" src="assets/brandbook-ru/partner.jpg"/><figcaption><strong>Партнёрская реклама</strong><span>Размещение рекламных материалов у локальных партнёров — автомоек, магазинов, СТО, кафе и других организаций — помогает использовать уже существующий поток посетителей.</span></figcaption></figure>
+<figure><img alt="Брендированный общественный транспорт — автобус" loading="lazy" src="assets/brandbook-ru/public-transport-bus.jpg"/><figcaption><strong>Брендированный общественный транспорт</strong><span>Пример крупного брендирования городского транспорта. Формат обеспечивает длительный контакт с большой аудиторией на разных маршрутах города.</span></figcaption></figure>
+<figure><img alt="Брендированный общественный транспорт — трамвай" loading="lazy" src="assets/brandbook-ru/public-transport-tram.jpg"/><figcaption><strong>Брендированный общественный транспорт</strong><span>Реклама на трамвае создаёт заметное присутствие бренда на регулярном городском маршруте и работает на широкий ежедневный охват.</span></figcaption></figure>
+<figure><img alt="Реклама в помещении — напольное размещение" loading="lazy" src="assets/brandbook-ru/indoor-floor.jpg"/><figcaption><strong>Реклама в помещениях</strong><span>Indoor-размещение в торговых точках и других помещениях с постоянным потоком посетителей позволяет взаимодействовать с аудиторией непосредственно в месте покупки или ожидания.</span></figcaption></figure>
+<figure><img alt="Реклама в помещении — постамат" loading="lazy" src="assets/brandbook-ru/indoor-locker.jpg"/><figcaption><strong>Реклама в помещениях</strong><span>Пример брендирования объекта внутри помещения. Такие форматы работают там, где посетители проводят время и регулярно видят рекламное сообщение.</span></figcaption></figure>
+<figure><img alt="Промо-акция Maxim" loading="lazy" src="assets/brandbook-ru/promo-person.jpg"/><figcaption><strong>Промо-акции</strong><span>Промоутеры рассказывают о сервисе и раздают рекламные материалы потенциальным пассажирам. Формат особенно полезен при запуске сервиса и во время городских мероприятий.</span></figcaption></figure>
+<figure><img alt="Промо-зона Maxim" loading="lazy" src="assets/brandbook-ru/promo-zone.jpg"/><figcaption><strong>Промо-зона / городские мероприятия</strong><span>Фирменная промо-зона позволяет представить сервис на праздниках, фестивалях и других локальных событиях, повышая узнаваемость и вовлекая жителей напрямую.</span></figcaption></figure>
+</div><button class="btn secondary ux-back-button" id="backFromBrandGallery" type="button">← Назад к рекламе</button></div>
+</div>
+</div>
+<div aria-hidden="true" class="ux-modal starter-package-modal" hidden="" id="starterPackageModal">
+<div class="ux-modal-backdrop" data-close-starter-package-modal=""></div>
+<div aria-labelledby="starterPackageTitle" aria-modal="true" class="ux-modal-panel ux-modal-panel-wide" role="dialog">
+<div class="ux-modal-head"><div><span class="ux-modal-eyebrow">Паушальный взнос</span><h2 id="starterPackageTitle">Стартовый пакет рекламы</h2><p>Пример материалов, которые сервис «Максим» подготавливает для запуска франчайзингового подразделения.</p></div><button aria-label="Закрыть" class="ux-modal-close" data-close-starter-package-modal="" type="button">×</button></div>
+<div class="ux-modal-body"><div class="starter-package-grid">
+<figure><img alt="Макеты стартового рекламного пакета" src="assets/brandbook-ru/starter-layouts.jpg"/><figcaption><strong>Макеты стартового рекламного пакета</strong><span>Подборка визуальных материалов, которые используются для запуска рекламной кампании сервиса в городе.</span></figcaption></figure>
+<figure><img alt="Доставленный стартовый рекламный пакет" src="assets/brandbook-ru/starter-delivered.jpg"/><figcaption><strong>Доставленный стартовый рекламный пакет</strong><span>Пример готовых рекламных материалов, которые сервис приобретает и доставляет франчайзи перед началом работы.</span></figcaption></figure>
+</div><p class="starter-package-copy">Пример макетов, которые сервис «Максим» направляет франчайзи перед началом работы сервиса в его городе. Пакет можно изменить по согласованию с вашим куратором.</p><button class="btn secondary ux-back-button" id="backToInitialPayment" type="button">← Назад к паушальному взносу</button></div>
+</div>
+</div>
+</body>
+</html>
