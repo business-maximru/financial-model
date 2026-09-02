@@ -19,6 +19,17 @@ const RealCasesUI=(()=>{
       btn.innerHTML='<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 19V9M10 19V5M16 19v-7M3 19h18"></path><circle cx="4" cy="7" r="1.5"></circle><circle cx="10" cy="3" r="1.5"></circle><circle cx="16" cy="10" r="1.5"></circle></svg><span class="top-action-label">Реальные примеры</span>';
       strip.insertBefore(btn,consult);
     }
+    // Desktop only: swap the positions of "Реальные примеры" and "Сменить город".
+    // Final order: Параметры → Реальные примеры → Сменить город → MAX.
+    if(strip&&consult&&window.matchMedia('(min-width:821px)').matches){
+      const pair=strip.querySelector('.top-action-pair');
+      const real=document.getElementById('realCasesBtn');
+      const change=document.getElementById('changeCityBtn');
+      if(pair&&real&&change){
+        pair.appendChild(real);
+        strip.insertBefore(change,consult);
+      }
+    }
     const actions=document.querySelector('#mobileKpiScreen .mobile-screen-actions');
     if(actions&&!document.getElementById('mobileRealCasesBtn')){
       const btn=document.createElement('button');

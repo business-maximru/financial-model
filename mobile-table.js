@@ -1,29 +1,6 @@
 'use strict';
 const MaximMobileTable=(()=>{
-  const MOBILE_MAX=820;
-  let currentMonth=1;
-  let fullscreenOwner=false;
-  let latestSource='model';
   const esc=s=>String(s??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;');
-  const isMobile=()=>window.innerWidth<=MOBILE_MAX;
-
-  function ensureFullscreen(){
-    if(document.getElementById('mobileFullTableModal'))return;
-    const modal=document.createElement('div');
-    modal.id='mobileFullTableModal';
-    modal.className='mobile-full-table-modal';
-    modal.hidden=true;
-    modal.setAttribute('aria-hidden','true');
-    modal.innerHTML=`<div class="mobile-full-table-shell" role="dialog" aria-modal="true" aria-labelledby="mobileFullTableTitle">
-      <header class="mobile-full-table-head">
-        <div><span class="mobile-full-table-eyebrow">Финансовая модель</span><h2 id="mobileFullTableTitle">Полная таблица за 12 месяцев</h2><p>Поверните телефон горизонтально. Таблицу можно прокручивать по месяцам.</p></div>
-        <button class="mobile-full-table-close" type="button" aria-label="Закрыть полную таблицу">×</button>
-      </header>
-      <div class="mobile-full-table-orientation" aria-hidden="true"><span>↻</span><b>Поверните телефон горизонтально для удобного просмотра</b></div>
-      <div class="mobile-full-table-scroll" id="mobileFullTableScroll"></div>
-    </div>`;
-    document.body.appendChild(modal);
-  }
 
   function sectionNameFromCell(cell){
     if(!cell)return'';
@@ -37,6 +14,13 @@ const MaximMobileTable=(()=>{
     const wrap=cell.querySelector('.metric-label-wrap>span:first-child');
     if(wrap)return wrap.textContent.trim();
     return cell.textContent.replace(/→|i$/g,'').trim();
+  }
+  function sectionMeta(section){
+    const key=String(section||'').toLowerCase();
+    if(key.includes('инвест'))return {cls:'investment',help:'investment'};
+    if(key.includes('доход'))return {cls:'income',help:'operations'};
+    if(key.includes('операц'))return {cls:'expenses',help:'expenses'};
+    return {cls:'profit',help:'profit'};
   }
 
   function parseModelTable(){
@@ -59,7 +43,7 @@ const MaximMobileTable=(()=>{
       if(values.length<12)return;
       rows.push({section:currentSection,label:metricNameFromCell(metricCell),values});
     });
-    return {type:'model',table,rows,title:'Финансовая модель'};
+    return {type:'model',table,rows,title:'Помесячная таблица'};
   }
 
   function parseCaseTable(){
@@ -88,80 +72,22 @@ const MaximMobileTable=(()=>{
     return {type:'case',table,rows,title:title?`Реальный кейс: ${title}`:'Реальный кейс'};
   }
 
-  function selectedSource(prefer='model'){
-    if(prefer==='case')return parseCaseTable()||parseModelTable();
-    return parseModelTable();
+  function labelContent(source,row){
+    const label=esc(row.label);
+    if(source.type!=='model')return `<span class="mobile-inline-label-text">${label}</span>`;
+    const normalized=row.label.toLowerCase();
+    if(normalized==='паушальный взнос'){
+      return `<button class="mobile-inline-metric-button" type="button" data-detail-type="initialPurchase" aria-label="Подробнее: ${label}"><span>${label}</span><i aria-hidden="true">›</i></button>`;
+    }
+    if(normalized==='реклама'){
+      return `<button class="mobile-inline-metric-button" type="button" data-detail-type="marketingInvestment" aria-label="Подробнее: ${label}"><span>${label}</span><i aria-hidden="true">›</i></button>`;
+    }
+    return `<span class="mobile-inline-label-text">${label}</span>`;
   }
 
-  function monthTableHtml(source,month){
-    const idx=Math.max(0,Math.min(11,month-1));
-    let section='';
-    let html='<div class="mobile-month-table">';
-    source.rows.forEach(row=>{
-      if(row.section!==section){
-        section=row.section;
-        const cls=String(section).toLowerCase().includes('инвест')?'investment':String(section).toLowerCase().includes('доход')?'income':String(section).toLowerCase().includes('операц')?'expenses':'profit';
-        html+=`<div class="mobile-month-section ${cls}">${esc(section)}</div>`;
-      }
-      const v=row.values[idx]||{text:'—'};
-      const classes=['mobile-month-value',v.positive?'positive':'',v.negative?'negative':'',v.total?'total':'',v.financial?'financial':''].filter(Boolean).join(' ');
-      html+=`<div class="mobile-month-row"><span>${esc(row.label)}</span><strong class="${classes}">${esc(v.text)}</strong></div>`;
-    });
-    html+='</div>';
-    return html;
-  }
-
-  function cardMarkup(source,scope){
-    const id=scope==='case'?'realCaseMobileMonthTable':'mobileMonthTableCard';
-    return `<section class="mobile-month-table-card" id="${id}" data-mobile-table-scope="${scope}">
-      <div class="mobile-month-table-head"><div><strong>Помесячная таблица</strong><span>Все показатели выбранного месяца</span></div><button class="mobile-full-table-open" type="button" data-mobile-full-table="${scope}">Развернуть таблицу ↗</button></div>
-      <div class="mobile-month-switcher"><button type="button" data-mobile-month-step="-1" aria-label="Предыдущий месяц">‹</button><strong data-mobile-month-label>${currentMonth} месяц</strong><button type="button" data-mobile-month-step="1" aria-label="Следующий месяц">›</button></div>
-      <input class="mobile-month-slider" type="range" min="1" max="12" step="1" value="${currentMonth}" aria-label="Выберите месяц" data-mobile-month-slider>
-      <div class="mobile-month-slider-scale"><span>1</span><span>12</span></div>
-      <div data-mobile-month-table-body>${monthTableHtml(source,currentMonth)}</div>
-    </section>`;
-  }
-
-  function renderMain(){
-    const host=document.getElementById('mobileFinancialAccordion');
-    const source=parseModelTable();
-    if(!host||!source)return;
-    let card=document.getElementById('mobileMonthTableCard');
-    if(!card){
-      host.insertAdjacentHTML('afterend',cardMarkup(source,'model'));
-    }else updateCard(card,source);
-  }
-
-  function renderCase(){
-    const source=parseCaseTable();
-    if(!source)return;
-    const wrap=source.table.closest('.real-case-table-wrap');
-    if(!wrap)return;
-    let card=document.getElementById('realCaseMobileMonthTable');
-    if(!card){
-      wrap.insertAdjacentHTML('beforebegin',cardMarkup(source,'case'));
-    }else updateCard(card,source);
-  }
-
-  function updateCard(card,source){
-    const label=card.querySelector('[data-mobile-month-label]');
-    const slider=card.querySelector('[data-mobile-month-slider]');
-    const body=card.querySelector('[data-mobile-month-table-body]');
-    if(label)label.textContent=`${currentMonth} месяц`;
-    if(slider)slider.value=String(currentMonth);
-    if(body)body.innerHTML=monthTableHtml(source,currentMonth);
-  }
-
-  function updateAllCards(){
-    const main=document.getElementById('mobileMonthTableCard');
-    if(main){const s=parseModelTable();if(s)updateCard(main,s);}
-    const caseCard=document.getElementById('realCaseMobileMonthTable');
-    if(caseCard){const s=parseCaseTable();if(s)updateCard(caseCard,s);}
-  }
-
-  function fullTableStandalone(source){
+  function tableLayout(source){
     const layout=document.createElement('div');
-    layout.className='mobile-full-table-layout';
+    layout.className='mobile-full-table-layout mobile-inline-12m-layout';
 
     const labels=document.createElement('div');
     labels.className='mobile-full-table-labels';
@@ -181,13 +107,15 @@ const MaximMobileTable=(()=>{
     source.rows.forEach(row=>{
       if(row.section!==section){
         section=row.section;
-        const key=String(section).toLowerCase();
-        const cls=key.includes('инвест')?'investment':key.includes('доход')?'income':key.includes('операц')?'expenses':'profit';
-        labelHtml+=`<tr class="mobile-full-section ${cls}"><th>${esc(section)}</th></tr>`;
-        valueHtml+=`<tr class="mobile-full-section ${cls}"><td colspan="12" aria-hidden="true"></td></tr>`;
+        const meta=sectionMeta(section);
+        const sectionLabel=source.type==='model'
+          ? `<button class="mobile-inline-section-button" type="button" data-section-help="${meta.help}" aria-label="Подробнее о разделе ${esc(section)}"><span>${esc(section)}</span><i aria-hidden="true">›</i></button>`
+          : `<span class="mobile-inline-section-text">${esc(section)}</span>`;
+        labelHtml+=`<tr class="mobile-full-section ${meta.cls}"><th>${sectionLabel}</th></tr>`;
+        valueHtml+=`<tr class="mobile-full-section ${meta.cls}"><td colspan="12" aria-hidden="true"></td></tr>`;
       }
-      const rowCls=`${row.total?'is-total ':''}${row.financial?'is-financial':''}`;
-      labelHtml+=`<tr class="${rowCls}"><th>${esc(row.label)}</th></tr>`;
+      const rowCls=`${row.total?'is-total ':''}${row.financial?'is-financial':''}`.trim();
+      labelHtml+=`<tr class="${rowCls}"><th>${labelContent(source,row)}</th></tr>`;
       valueHtml+=`<tr class="${rowCls}">`;
       row.values.slice(0,12).forEach(v=>{
         const cls=[v.positive?'positive':'',v.negative?'negative':'',v.total?'total':'',v.financial?'financial':''].filter(Boolean).join(' ');
@@ -205,66 +133,112 @@ const MaximMobileTable=(()=>{
     return layout;
   }
 
-  async function openFull(scope){
-    ensureFullscreen();
-    latestSource=scope;
-    const source=selectedSource(scope);
-    if(!source)return;
-    const modal=document.getElementById('mobileFullTableModal');
-    const holder=document.getElementById('mobileFullTableScroll');
-    const title=document.getElementById('mobileFullTableTitle');
-    holder.innerHTML='';
-    holder.appendChild(fullTableStandalone(source));
-    if(title)title.textContent=source.type==='case'?`${source.title} · 12 месяцев`:'Полная таблица за 12 месяцев';
-    modal.hidden=false;modal.setAttribute('aria-hidden','false');document.body.classList.add('mobile-full-table-open');
+  function closeLandscapeModal(){
+    const modal=document.getElementById('mobileLandscapeTableModal');
+    if(modal)modal.remove();
+    document.body.classList.remove('mobile-landscape-table-open');
     try{
-      if(document.documentElement.requestFullscreen&&!document.fullscreenElement){
-        await document.documentElement.requestFullscreen({navigationUI:'hide'});fullscreenOwner=true;
-      }
-      if(screen.orientation?.lock)await screen.orientation.lock('landscape');
-    }catch(_e){}
+      if(document.fullscreenElement)document.exitFullscreen().catch(()=>{});
+    }catch(_){ }
+    try{
+      if(screen.orientation&&screen.orientation.unlock)screen.orientation.unlock();
+    }catch(_){ }
   }
 
-  async function closeFull(){
-    const modal=document.getElementById('mobileFullTableModal');
-    if(modal){modal.hidden=true;modal.setAttribute('aria-hidden','true');}
-    document.body.classList.remove('mobile-full-table-open');
-    try{if(screen.orientation?.unlock)screen.orientation.unlock();}catch(_e){}
-    try{if(fullscreenOwner&&document.fullscreenElement)await document.exitFullscreen();}catch(_e){}
-    fullscreenOwner=false;
+  async function tryLandscape(modal){
+    let locked=false;
+    try{
+      if(modal.requestFullscreen && !document.fullscreenElement){
+        await modal.requestFullscreen({navigationUI:'hide'});
+      }
+    }catch(_){ }
+    try{
+      if(screen.orientation&&screen.orientation.lock){
+        await screen.orientation.lock('landscape');
+        locked=true;
+      }
+    }catch(_){ }
+    const note=modal.querySelector('[data-landscape-note]');
+    if(note){
+      note.textContent=locked
+        ? 'Экран открыт горизонтально. Месяцы прокручиваются вправо и влево.'
+        : 'Если экран не повернулся автоматически, поверните телефон горизонтально.';
+    }
+  }
+
+  function openLandscapeModal(source){
+    closeLandscapeModal();
+    const modal=document.createElement('div');
+    modal.id='mobileLandscapeTableModal';
+    modal.className='mobile-landscape-table-modal';
+    modal.innerHTML=`<section class="mobile-landscape-table-shell" role="dialog" aria-modal="true" aria-label="Помесячная таблица в горизонтальном режиме">
+      <header class="mobile-landscape-table-head"><div class="mobile-landscape-table-title"><strong>${esc(source.title||'Помесячная таблица')}</strong><span data-landscape-note>Поверните телефон горизонтально для удобного просмотра</span></div><button class="mobile-landscape-table-close" type="button" aria-label="Закрыть">×</button></header>
+      <div class="mobile-landscape-table-body"></div>
+    </section>`;
+    modal.querySelector('.mobile-landscape-table-body').appendChild(tableLayout(source));
+    document.body.appendChild(modal);
+    document.body.classList.add('mobile-landscape-table-open');
+    modal.querySelector('.mobile-landscape-table-close').addEventListener('click',closeLandscapeModal);
+    tryLandscape(modal);
+  }
+
+  function card(source,scope){
+    const el=document.createElement('section');
+    el.className='mobile-month-table-card mobile-inline-12m-card';
+    el.id=scope==='case'?'realCaseMobileMonthTable':'mobileMonthTableCard';
+    el.dataset.mobileTableScope=scope;
+    el.innerHTML=`<div class="mobile-month-table-head mobile-inline-12m-head"><div><strong>Помесячная таблица</strong><span>Прокручивайте месяцы горизонтально</span></div><div class="mobile-inline-table-actions"><span class="mobile-inline-scroll-hint" aria-hidden="true">← 1–12 →</span><button class="mobile-table-landscape-btn" type="button" aria-label="Открыть таблицу горизонтально"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 8V4h4M20 16v4h-4"></path><path d="M5.5 5.5A8 8 0 0 1 19 9M18.5 18.5A8 8 0 0 1 5 15"></path></svg><span>Горизонтально</span></button></div></div>`;
+    const body=document.createElement('div');
+    body.className='mobile-inline-12m-body';
+    body.appendChild(tableLayout(source));
+    el.appendChild(body);
+    el.querySelector('.mobile-table-landscape-btn')?.addEventListener('click',()=>openLandscapeModal(source));
+    return el;
+  }
+
+  function updateCard(existing,source,scope){
+    const next=card(source,scope);
+    existing.replaceWith(next);
+  }
+
+  function renderMain(){
+    const host=document.getElementById('mobileFinancialAccordion');
+    const source=parseModelTable();
+    if(!host||!source)return;
+    const existing=document.getElementById('mobileMonthTableCard');
+    if(existing)updateCard(existing,source,'model');
+    else host.insertAdjacentElement('afterend',card(source,'model'));
+  }
+
+  function renderCase(){
+    const source=parseCaseTable();
+    if(!source)return;
+    const wrap=source.table.closest('.real-case-table-wrap');
+    if(!wrap)return;
+    const existing=document.getElementById('realCaseMobileMonthTable');
+    if(existing)updateCard(existing,source,'case');
+    else wrap.insertAdjacentElement('beforebegin',card(source,'case'));
   }
 
   function events(){
-    document.addEventListener('click',e=>{
-      const step=e.target.closest('[data-mobile-month-step]');
-      if(step){
-        currentMonth=Math.max(1,Math.min(12,currentMonth+Number(step.dataset.mobileMonthStep||0)));
-        updateAllCards();return;
-      }
-      const open=e.target.closest('[data-mobile-full-table]');
-      if(open){e.preventDefault();openFull(open.dataset.mobileFullTable||'model');return;}
-      if(e.target.closest('.mobile-full-table-close')){e.preventDefault();closeFull();return;}
-    });
-    document.addEventListener('input',e=>{
-      const slider=e.target.closest('[data-mobile-month-slider]');
-      if(slider){currentMonth=Math.max(1,Math.min(12,Number(slider.value)||1));updateAllCards();}
-    });
-    document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!document.getElementById('mobileFullTableModal')?.hidden)closeFull();});
-    document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement&&!document.getElementById('mobileFullTableModal')?.hidden){fullscreenOwner=false;}});
+    document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementById('mobileLandscapeTableModal'))closeLandscapeModal();});
+    document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement&&document.getElementById('mobileLandscapeTableModal')&&!document.body.classList.contains('mobile-landscape-table-open'))closeLandscapeModal();});
     document.addEventListener('maxim:model-rendered',()=>setTimeout(renderMain,0));
-
     const caseBody=document.getElementById('realCaseViewBody');
     if(caseBody){
       new MutationObserver(()=>setTimeout(renderCase,0)).observe(caseBody,{childList:true,subtree:false});
     }else{
       new MutationObserver(()=>{
         const body=document.getElementById('realCaseViewBody');
-        if(body&&!body.dataset.mobileTableObserved){body.dataset.mobileTableObserved='1';new MutationObserver(()=>setTimeout(renderCase,0)).observe(body,{childList:true,subtree:false});}
+        if(body&&!body.dataset.mobileTableObserved){
+          body.dataset.mobileTableObserved='1';
+          new MutationObserver(()=>setTimeout(renderCase,0)).observe(body,{childList:true,subtree:false});
+        }
       }).observe(document.body,{childList:true,subtree:true});
     }
   }
 
-  function init(){ensureFullscreen();events();setTimeout(renderMain,50);}
+  function init(){events();setTimeout(renderMain,50);}
   return{init,renderMain,renderCase};
 })();
 document.addEventListener('DOMContentLoaded',MaximMobileTable.init);

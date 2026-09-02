@@ -13433,3 +13433,988 @@ body.mobile-full-table-open #mobileFullTableModal .mobile-full-table-shell{
     padding:5px!important;
   }
 }
+
+/* =========================================================
+   RU REVISION 13 — true fullscreen Real Cases list on mobile
+   Keep this block LAST so desktop modal sizing cannot override it.
+   ========================================================= */
+@media (max-width:820px){
+  .real-cases-modal{
+    position:fixed!important;
+    inset:0!important;
+    width:100dvw!important;
+    max-width:100dvw!important;
+    height:100dvh!important;
+    max-height:100dvh!important;
+    padding:0!important;
+    margin:0!important;
+    display:block!important;
+    overflow:hidden!important;
+    background:#fff!important;
+  }
+  .real-cases-modal[hidden]{display:none!important;}
+  .real-cases-modal .real-cases-backdrop{display:none!important;}
+  .real-cases-panel{
+    position:absolute!important;
+    inset:0!important;
+    width:100dvw!important;
+    min-width:100dvw!important;
+    max-width:none!important;
+    height:100dvh!important;
+    min-height:100dvh!important;
+    max-height:none!important;
+    margin:0!important;
+    border:0!important;
+    border-radius:0!important;
+    box-shadow:none!important;
+    box-sizing:border-box!important;
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+    background:#fff!important;
+  }
+  .real-cases-head,
+  .real-cases-body{
+    width:100%!important;
+    max-width:none!important;
+    box-sizing:border-box!important;
+  }
+}
+
+/* =========================================================
+   RU REVISION 14 — simplified MOBILE result flow only
+   Desktop is intentionally untouched.
+   - one vertical result page
+   - one 12-month horizontally scrollable table
+   - fixed indicator column
+   - no month slider / step navigation / duplicate financial accordion
+   ========================================================= */
+@media (max-width:820px){
+  /* Show all result blocks as one natural vertical page. */
+  body:not(.city-start-mode) .mobile-app-shell #mobileKpiScreen.mobile-screen,
+  body:not(.city-start-mode) .mobile-app-shell #mobileChartScreen.mobile-screen,
+  body:not(.city-start-mode) .mobile-app-shell #mobileSummaryScreen.mobile-screen,
+  body:not(.city-start-mode) .mobile-app-shell #mobileResumoScreen.mobile-screen,
+  body:not(.city-start-mode) .mobile-app-shell #mobilePresentationScreen.mobile-screen{
+    display:flex!important;
+    position:relative!important;
+    inset:auto!important;
+    width:100%!important;
+    height:auto!important;
+    min-height:0!important;
+    max-height:none!important;
+    overflow:visible!important;
+    flex-direction:column!important;
+    justify-content:flex-start!important;
+    align-items:stretch!important;
+    gap:12px!important;
+    box-sizing:border-box!important;
+    pointer-events:auto!important;
+  }
+  body:not(.city-start-mode) #mobileKpiScreen.mobile-calc-screen{
+    padding:calc(env(safe-area-inset-top,0px) + 12px) 12px 10px!important;
+  }
+  body:not(.city-start-mode) #mobileChartScreen.mobile-calc-screen,
+  body:not(.city-start-mode) #mobileSummaryScreen.mobile-calc-screen,
+  body:not(.city-start-mode) #mobileResumoScreen.mobile-calc-screen,
+  body:not(.city-start-mode) #mobilePresentationScreen.mobile-calc-screen{
+    padding:0 12px 12px!important;
+  }
+
+  /* Old step/navigation UI is removed from the mobile experience. */
+  .mobile-flow-progress,
+  .mobile-flow-nav,
+  .mobile-flow-prev,
+  .mobile-flow-next,
+  .mobile-slide-button,
+  .mobile-slide-detail-button,
+  .mobile-detail-next{
+    display:none!important;
+  }
+
+  /* The old accordion duplicated the monthly table and the 12-month summary. */
+  #mobileFinancialAccordion,
+  .mobile-financial-accordion{
+    display:none!important;
+  }
+
+  /* No artificial page hero/background separators between result blocks. */
+  #mobileKpiScreen.mobile-calc-screen::before,
+  #mobileChartScreen.mobile-calc-screen::before,
+  #mobileSummaryScreen.mobile-calc-screen::before,
+  #mobileResumoScreen.mobile-calc-screen::before,
+  #mobilePresentationScreen.mobile-calc-screen::before{
+    content:none!important;
+    display:none!important;
+  }
+
+  /* Keep actions in document flow at the top of the unified result page. */
+  body:not(.city-start-mode) .mobile-screen-actions,
+  #mobileKpiScreen .mobile-screen-actions{
+    position:static!important;
+    inset:auto!important;
+    z-index:auto!important;
+    margin:0 0 2px!important;
+  }
+
+  /* New inline 12-month table replaces the month-by-month slider card. */
+  .mobile-inline-12m-card{
+    display:block!important;
+    width:100%!important;
+    max-width:none!important;
+    margin:2px 0 4px!important;
+    border:1px solid #d9e1e9!important;
+    border-radius:15px!important;
+    background:#fff!important;
+    overflow:hidden!important;
+    box-shadow:0 6px 18px rgba(16,24,40,.055)!important;
+  }
+  .mobile-inline-12m-head{
+    display:flex!important;
+    align-items:center!important;
+    justify-content:space-between!important;
+    gap:8px!important;
+    padding:12px 12px 10px!important;
+    border-bottom:1px solid #e6ebf0!important;
+    background:#fff!important;
+  }
+  .mobile-inline-12m-head>div{display:grid!important;gap:2px!important;min-width:0!important;}
+  .mobile-inline-12m-head strong{font-size:15px!important;line-height:1.15!important;color:#162d45!important;}
+  .mobile-inline-12m-head span{font-size:10px!important;line-height:1.25!important;color:#6e7d90!important;}
+  .mobile-inline-scroll-hint{
+    flex:0 0 auto!important;
+    padding:5px 8px!important;
+    border-radius:999px!important;
+    background:#eef4fa!important;
+    color:#315779!important;
+    font-size:9px!important;
+    font-weight:850!important;
+    white-space:nowrap!important;
+  }
+  .mobile-inline-12m-body{
+    width:100%!important;
+    min-width:0!important;
+    padding:0!important;
+    overflow:hidden!important;
+    background:#eef3f8!important;
+  }
+  .mobile-inline-12m-layout{
+    border:0!important;
+    border-radius:0!important;
+    box-shadow:none!important;
+  }
+
+  /* Fixed first column; only months move horizontally. */
+  .mobile-inline-12m-card .mobile-full-table-layout{
+    grid-template-columns:188px minmax(0,1fr)!important;
+    width:100%!important;
+    min-width:0!important;
+  }
+  .mobile-inline-12m-card .mobile-full-table-labels,
+  .mobile-inline-12m-card .mobile-full-table-label-grid{
+    width:188px!important;
+    min-width:188px!important;
+    max-width:188px!important;
+  }
+  .mobile-inline-12m-card .mobile-full-table-label-grid tbody th{
+    width:188px!important;
+    min-width:188px!important;
+    max-width:188px!important;
+  }
+  .mobile-inline-12m-card .mobile-full-table-months-scroll{
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    scrollbar-width:thin!important;
+    scrollbar-color:#aab9c8 #eef3f8!important;
+  }
+  .mobile-inline-12m-card .mobile-full-table-values-grid{
+    width:936px!important;
+    min-width:936px!important;
+  }
+  .mobile-inline-12m-card .mobile-full-table-label-grid th,
+  .mobile-inline-12m-card .mobile-full-table-values-grid th,
+  .mobile-inline-12m-card .mobile-full-table-values-grid td{
+    height:36px!important;
+    min-height:36px!important;
+    max-height:36px!important;
+    padding:6px 8px!important;
+    font-size:10px!important;
+  }
+  .mobile-inline-12m-card .mobile-full-table-label-grid .mobile-full-section th,
+  .mobile-inline-12m-card .mobile-full-table-values-grid .mobile-full-section td{
+    height:38px!important;
+    min-height:38px!important;
+    max-height:38px!important;
+  }
+
+  /* Clickable section headers and primary investment rows now live in the table. */
+  .mobile-inline-section-button,
+  .mobile-inline-metric-button{
+    appearance:none!important;
+    -webkit-appearance:none!important;
+    width:100%!important;
+    height:100%!important;
+    min-height:0!important;
+    padding:0!important;
+    margin:0!important;
+    border:0!important;
+    background:transparent!important;
+    color:inherit!important;
+    font:inherit!important;
+    font-weight:inherit!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:space-between!important;
+    gap:7px!important;
+    text-align:left!important;
+    cursor:pointer!important;
+  }
+  .mobile-inline-section-button span,
+  .mobile-inline-metric-button span{
+    min-width:0!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+  }
+  .mobile-inline-section-button i,
+  .mobile-inline-metric-button i{
+    flex:0 0 auto!important;
+    font-style:normal!important;
+    font-size:17px!important;
+    line-height:1!important;
+    opacity:.72!important;
+  }
+  .mobile-inline-section-button{
+    font-weight:950!important;
+    text-transform:uppercase!important;
+    letter-spacing:.025em!important;
+  }
+  .mobile-inline-metric-button{
+    border-radius:7px!important;
+    padding:0 4px!important;
+    background:rgba(255,255,255,.45)!important;
+    box-shadow:inset 0 0 0 1px rgba(62,91,120,.16)!important;
+    font-weight:800!important;
+  }
+  .mobile-inline-label-text,
+  .mobile-inline-section-text{display:block!important;}
+
+  /* One continuous scroll page: cards should size to their content. */
+  #mobileChartScreen .mobile-chart-card,
+  .mobile-chart-card,
+  #mobileSummaryScreen .mobile-summary-stack,
+  #mobileResumoScreen .mobile-summary-stack,
+  .mobile-presentation-stack{
+    width:100%!important;
+    max-width:none!important;
+    height:auto!important;
+    min-height:0!important;
+    max-height:none!important;
+    margin:0!important;
+    padding-top:0!important;
+    padding-bottom:0!important;
+    overflow:visible!important;
+  }
+  .mobile-chart-card,
+  .mobile-info-panel,
+  .mobile-resumo-panel,
+  .mobile-presentation-panel,
+  .mobile-final-cta-panel{
+    width:100%!important;
+    max-width:none!important;
+    margin:0!important;
+  }
+  .mobile-chart-box{
+    height:310px!important;
+    min-height:310px!important;
+    max-height:310px!important;
+  }
+
+  /* Old fullscreen/month selector controls are obsolete in this flow. */
+  .mobile-month-switcher,
+  .mobile-month-slider,
+  .mobile-month-slider-scale,
+  .mobile-full-table-open{
+    display:none!important;
+  }
+}
+
+@media (max-width:360px){
+  .mobile-inline-12m-card .mobile-full-table-layout{grid-template-columns:174px minmax(0,1fr)!important;}
+  .mobile-inline-12m-card .mobile-full-table-labels,
+  .mobile-inline-12m-card .mobile-full-table-label-grid{width:174px!important;min-width:174px!important;max-width:174px!important;}
+  .mobile-inline-12m-card .mobile-full-table-label-grid tbody th{width:174px!important;min-width:174px!important;max-width:174px!important;}
+  .mobile-inline-12m-card .mobile-full-table-label-grid th,
+  .mobile-inline-12m-card .mobile-full-table-values-grid th,
+  .mobile-inline-12m-card .mobile-full-table-values-grid td{font-size:9.5px!important;padding:6px 7px!important;}
+}
+
+/* =========================================================
+   RU REVISION 15 — mobile header + landscape table focus
+   Desktop remains unchanged.
+   ========================================================= */
+@media (max-width:820px){
+  /* Row 1: logo + change city. */
+  body:not(.city-start-mode) .topbar{
+    position:relative!important;
+    top:auto!important;
+    left:auto!important;
+    right:auto!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:space-between!important;
+    width:100%!important;
+    height:62px!important;
+    min-height:62px!important;
+    max-height:none!important;
+    padding:8px 12px!important;
+    margin:0!important;
+    background:#f5f6f8!important;
+    border-bottom:0!important;
+    backdrop-filter:none!important;
+    overflow:visible!important;
+  }
+  body:not(.city-start-mode) .topbar .app-brand-top{
+    display:flex!important;
+    align-items:center!important;
+    flex:0 0 auto!important;
+    height:46px!important;
+    min-width:0!important;
+    padding:0!important;
+  }
+  body:not(.city-start-mode) .topbar .brand-logo,
+  body:not(.city-start-mode) .app-brand-top .brand-logo{
+    display:block!important;
+    height:36px!important;
+    max-width:144px!important;
+    width:auto!important;
+    object-fit:contain!important;
+  }
+  body:not(.city-start-mode) .topbar-city-meta{display:none!important;}
+  body:not(.city-start-mode) .actions-strip-compact{
+    display:flex!important;
+    align-items:center!important;
+    justify-content:flex-end!important;
+    flex:0 0 auto!important;
+    width:auto!important;
+    height:auto!important;
+    margin:0!important;
+    padding:0!important;
+    overflow:visible!important;
+  }
+  body:not(.city-start-mode) .actions-strip-compact .top-action-pair{
+    display:flex!important;
+    align-items:center!important;
+    margin:0!important;
+    padding:0!important;
+  }
+  body:not(.city-start-mode) #parametersBtn,
+  body:not(.city-start-mode) #realCasesBtn,
+  body:not(.city-start-mode) #desktopConsultCta{
+    display:none!important;
+  }
+  body:not(.city-start-mode) #changeCityBtn{
+    display:inline-flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    gap:7px!important;
+    width:158px!important;
+    min-width:158px!important;
+    max-width:158px!important;
+    height:44px!important;
+    min-height:44px!important;
+    padding:0 12px!important;
+    border-radius:12px!important;
+    font-size:11px!important;
+    font-weight:850!important;
+    white-space:nowrap!important;
+    color:#174f79!important;
+    background:linear-gradient(180deg,#f2f8ff 0%,#deefff 100%)!important;
+    border:1px solid #9bc6e8!important;
+  }
+  body:not(.city-start-mode) #changeCityBtn svg{
+    width:17px!important;
+    height:17px!important;
+    flex:0 0 17px!important;
+  }
+
+  /* Row 2: parameters + real examples. */
+  body:not(.city-start-mode) #mobileKpiScreen .mobile-screen-actions,
+  body:not(.city-start-mode) .mobile-screen-actions{
+    position:static!important;
+    inset:auto!important;
+    transform:none!important;
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+    align-items:stretch!important;
+    justify-content:stretch!important;
+    width:100%!important;
+    max-width:none!important;
+    gap:8px!important;
+    margin:0 0 4px!important;
+    padding:0!important;
+    overflow:visible!important;
+  }
+  body:not(.city-start-mode) #mobileChangeCityBtn{display:none!important;}
+  body:not(.city-start-mode) #mobileParametersBtn,
+  body:not(.city-start-mode) #mobileRealCasesBtn{
+    display:inline-flex!important;
+    width:100%!important;
+    min-width:0!important;
+    max-width:none!important;
+    height:42px!important;
+    min-height:42px!important;
+    padding:0 10px!important;
+    align-items:center!important;
+    justify-content:center!important;
+    gap:7px!important;
+    border-radius:12px!important;
+    font-size:10.5px!important;
+    font-weight:850!important;
+    box-sizing:border-box!important;
+    transform:none!important;
+  }
+  body:not(.city-start-mode) #mobileParametersBtn{
+    color:#735b00!important;
+    background:linear-gradient(180deg,#fff8d8 0%,#ffefad 100%)!important;
+    border:1px solid #dfbf54!important;
+  }
+  body:not(.city-start-mode) #mobileRealCasesBtn{
+    color:#173b63!important;
+    background:#f3f7fb!important;
+    border:1px solid #b8c8da!important;
+  }
+
+  /* Rotation/focus action in the monthly table. */
+  .mobile-inline-12m-head{align-items:center!important;}
+  .mobile-inline-table-actions{
+    display:flex!important;
+    align-items:center!important;
+    gap:6px!important;
+    flex:0 0 auto!important;
+  }
+  .mobile-table-landscape-btn{
+    appearance:none!important;
+    -webkit-appearance:none!important;
+    display:inline-flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    gap:5px!important;
+    min-height:30px!important;
+    padding:0 9px!important;
+    border:1px solid #b8c8da!important;
+    border-radius:9px!important;
+    background:#f5f9fd!important;
+    color:#24547b!important;
+    font:800 9px/1 var(--font)!important;
+    white-space:nowrap!important;
+    cursor:pointer!important;
+  }
+  .mobile-table-landscape-btn svg{width:13px!important;height:13px!important;stroke:currentColor!important;fill:none!important;stroke-width:2!important;}
+}
+
+/* Landscape table focus is a dedicated surface and remains mobile UI
+   even when the rotated viewport is wider than the desktop breakpoint. */
+.mobile-landscape-table-modal[hidden]{display:none!important;}
+.mobile-landscape-table-modal{
+  position:fixed!important;
+  inset:0!important;
+  z-index:2147483200!important;
+  width:100vw!important;
+  height:100dvh!important;
+  background:#eef3f8!important;
+  color:#172b41!important;
+  overflow:hidden!important;
+  isolation:isolate!important;
+}
+.mobile-landscape-table-shell{
+  display:grid!important;
+  grid-template-rows:auto minmax(0,1fr)!important;
+  width:100%!important;
+  height:100%!important;
+  background:#eef3f8!important;
+}
+.mobile-landscape-table-head{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:10px!important;
+  min-height:54px!important;
+  padding:max(7px,env(safe-area-inset-top)) max(10px,env(safe-area-inset-right)) 7px max(10px,env(safe-area-inset-left))!important;
+  border-bottom:1px solid #d8e1e9!important;
+  background:#fff!important;
+}
+.mobile-landscape-table-title{display:grid!important;gap:2px!important;min-width:0!important;}
+.mobile-landscape-table-title strong{font-size:14px!important;line-height:1.15!important;}
+.mobile-landscape-table-title span{font-size:9px!important;line-height:1.25!important;color:#66788b!important;}
+.mobile-landscape-table-close{
+  width:38px!important;height:38px!important;min-width:38px!important;
+  border:1px solid #d5dee7!important;border-radius:11px!important;
+  background:#f6f9fc!important;color:#23445f!important;font-size:24px!important;line-height:1!important;cursor:pointer!important;
+}
+.mobile-landscape-table-body{
+  min-width:0!important;min-height:0!important;
+  padding:8px max(8px,env(safe-area-inset-right)) max(8px,env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left))!important;
+  overflow:hidden!important;
+}
+.mobile-landscape-table-body .mobile-full-table-layout{
+  display:grid!important;
+  grid-template-columns:190px minmax(0,1fr)!important;
+  width:100%!important;height:100%!important;
+  min-width:0!important;overflow:hidden!important;
+  border:1px solid #d7e0e8!important;border-radius:11px!important;background:#fff!important;
+}
+.mobile-landscape-table-body .mobile-full-table-labels{
+  width:190px!important;min-width:190px!important;max-width:190px!important;
+  overflow:hidden!important;background:#fff!important;z-index:2!important;box-shadow:2px 0 6px rgba(24,49,74,.08)!important;
+}
+.mobile-landscape-table-body .mobile-full-table-months-scroll{
+  min-width:0!important;overflow:auto!important;-webkit-overflow-scrolling:touch!important;background:#fff!important;
+}
+.mobile-landscape-table-body .mobile-full-table-label-grid{
+  width:190px!important;min-width:190px!important;max-width:190px!important;border-collapse:separate!important;border-spacing:0!important;
+}
+.mobile-landscape-table-body .mobile-full-table-values-grid{
+  width:936px!important;min-width:936px!important;border-collapse:separate!important;border-spacing:0!important;
+}
+.mobile-landscape-table-body .mobile-full-table-label-grid th,
+.mobile-landscape-table-body .mobile-full-table-values-grid th,
+.mobile-landscape-table-body .mobile-full-table-values-grid td{
+  box-sizing:border-box!important;height:34px!important;min-height:34px!important;max-height:34px!important;
+  padding:5px 7px!important;border-right:1px solid #e3e9ef!important;border-bottom:1px solid #e3e9ef!important;
+  font-size:9.5px!important;white-space:nowrap!important;background:#fff!important;
+}
+.mobile-landscape-table-body .mobile-full-table-label-grid th{text-align:left!important;}
+.mobile-landscape-table-body .mobile-full-table-values-grid th,
+.mobile-landscape-table-body .mobile-full-table-values-grid td{text-align:right!important;}
+.mobile-landscape-table-body .mobile-full-table-values-grid thead th{text-align:center!important;background:#f3f6f9!important;font-weight:900!important;}
+.mobile-landscape-table-body .mobile-full-table-label-grid thead th{background:#f3f6f9!important;font-weight:900!important;}
+.mobile-landscape-table-body .mobile-full-section th,
+.mobile-landscape-table-body .mobile-full-section td{height:36px!important;min-height:36px!important;max-height:36px!important;border-top:4px solid #eef3f8!important;font-weight:900!important;}
+.mobile-landscape-table-body .mobile-full-section.investment th,
+.mobile-landscape-table-body .mobile-full-section.investment td{background:#fff4cf!important;color:#796000!important;}
+.mobile-landscape-table-body .mobile-full-section.income th,
+.mobile-landscape-table-body .mobile-full-section.income td{background:#e9f4fb!important;color:#174f79!important;}
+.mobile-landscape-table-body .mobile-full-section.expenses th,
+.mobile-landscape-table-body .mobile-full-section.expenses td{background:#fde7e7!important;color:#8b3036!important;}
+.mobile-landscape-table-body .mobile-full-section.profit th,
+.mobile-landscape-table-body .mobile-full-section.profit td{background:#e9f6e5!important;color:#2e6f32!important;}
+.mobile-landscape-table-body .positive{color:#34752f!important;font-weight:850!important;}
+.mobile-landscape-table-body .negative{color:#a13e36!important;font-weight:850!important;}
+.mobile-landscape-table-body tr.is-financial th,
+.mobile-landscape-table-body tr.is-financial td{font-weight:950!important;background:#f6f9fc!important;}
+.mobile-landscape-table-body tr.is-total th,
+.mobile-landscape-table-body tr.is-total td{font-weight:900!important;background:#fafbfd!important;}
+body.mobile-landscape-table-open{overflow:hidden!important;}
+@media (orientation:landscape){
+  .mobile-landscape-table-head{min-height:46px!important;padding-top:5px!important;padding-bottom:5px!important;}
+  .mobile-landscape-table-title span{display:none!important;}
+  .mobile-landscape-table-body{padding-top:5px!important;}
+  .mobile-landscape-table-body .mobile-full-table-layout{grid-template-columns:200px minmax(0,1fr)!important;}
+  .mobile-landscape-table-body .mobile-full-table-labels,
+  .mobile-landscape-table-body .mobile-full-table-label-grid{width:200px!important;min-width:200px!important;max-width:200px!important;}
+}
+@media (max-width:360px){
+  .mobile-inline-scroll-hint{display:none!important;}
+  .mobile-table-landscape-btn{padding:0 8px!important;font-size:8.7px!important;}
+  body:not(.city-start-mode) #changeCityBtn{width:146px!important;min-width:146px!important;max-width:146px!important;font-size:10.5px!important;}
+  body:not(.city-start-mode) .topbar .brand-logo,
+  body:not(.city-start-mode) .app-brand-top .brand-logo{height:34px!important;max-width:130px!important;}
+}
+
+/* =========================================================
+   RU REVISION 16 — approved mobile header layout
+   Mobile only. Desktop remains unchanged.
+   Row 1: Maxim logo | Change city
+   Row 2: Parameters | Real examples
+   ========================================================= */
+@media (max-width:820px){
+  body:not(.city-start-mode) .topbar{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) minmax(148px,1fr)!important;
+    grid-template-rows:52px 44px!important;
+    column-gap:8px!important;
+    row-gap:8px!important;
+    align-items:stretch!important;
+    width:100%!important;
+    height:auto!important;
+    min-height:112px!important;
+    max-height:none!important;
+    padding:8px 12px!important;
+    margin:0!important;
+    box-sizing:border-box!important;
+    background:#fff!important;
+    border:0!important;
+    overflow:visible!important;
+    position:relative!important;
+    inset:auto!important;
+  }
+
+  body:not(.city-start-mode) .topbar .app-brand-top{
+    grid-column:1!important;
+    grid-row:1!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:flex-start!important;
+    width:100%!important;
+    height:52px!important;
+    min-width:0!important;
+    padding:0 4px!important;
+    margin:0!important;
+    background:transparent!important;
+    border:0!important;
+    border-radius:0!important;
+    box-shadow:none!important;
+  }
+  body:not(.city-start-mode) .topbar .brand-logo,
+  body:not(.city-start-mode) .app-brand-top .brand-logo{
+    display:block!important;
+    width:auto!important;
+    max-width:132px!important;
+    height:36px!important;
+    object-fit:contain!important;
+    margin:0!important;
+    padding:0!important;
+    background:transparent!important;
+    border:0!important;
+    box-shadow:none!important;
+  }
+
+  body:not(.city-start-mode) .topbar-city-meta{display:none!important;}
+
+  /* Flatten desktop wrappers so the three actions become direct grid items. */
+  body:not(.city-start-mode) .actions-strip-compact,
+  body:not(.city-start-mode) .actions-strip-compact .top-action-pair{
+    display:contents!important;
+  }
+
+  body:not(.city-start-mode) #parametersBtn,
+  body:not(.city-start-mode) #changeCityBtn,
+  body:not(.city-start-mode) #realCasesBtn{
+    display:inline-flex!important;
+    position:static!important;
+    inset:auto!important;
+    transform:none!important;
+    width:100%!important;
+    min-width:0!important;
+    max-width:none!important;
+    height:44px!important;
+    min-height:44px!important;
+    margin:0!important;
+    padding:0 10px!important;
+    box-sizing:border-box!important;
+    align-items:center!important;
+    justify-content:center!important;
+    gap:7px!important;
+    border-radius:12px!important;
+    font-size:11px!important;
+    line-height:1.1!important;
+    font-weight:800!important;
+    white-space:nowrap!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+    box-shadow:none!important;
+  }
+
+  body:not(.city-start-mode) #changeCityBtn{
+    grid-column:2!important;
+    grid-row:1!important;
+    align-self:center!important;
+    color:#174f79!important;
+    background:linear-gradient(180deg,#f5faff 0%,#e5f2ff 100%)!important;
+    border:1px solid #9bc6e8!important;
+  }
+  body:not(.city-start-mode) #parametersBtn{
+    grid-column:1!important;
+    grid-row:2!important;
+    color:#735b00!important;
+    background:linear-gradient(180deg,#fffaf0 0%,#fff1c7 100%)!important;
+    border:1px solid #e3c463!important;
+  }
+  body:not(.city-start-mode) #realCasesBtn{
+    grid-column:2!important;
+    grid-row:2!important;
+    color:#173b63!important;
+    background:linear-gradient(180deg,#f8fbfe 0%,#eef4fa 100%)!important;
+    border:1px solid #b8c8da!important;
+  }
+  body:not(.city-start-mode) #desktopConsultCta{display:none!important;}
+
+  body:not(.city-start-mode) #parametersBtn svg,
+  body:not(.city-start-mode) #changeCityBtn svg,
+  body:not(.city-start-mode) #realCasesBtn svg{
+    width:17px!important;
+    height:17px!important;
+    flex:0 0 17px!important;
+  }
+
+  /* The old duplicate mobile action row is no longer part of the header UX. */
+  body:not(.city-start-mode) #mobileKpiScreen .mobile-screen-actions,
+  body:not(.city-start-mode) .mobile-screen-actions{
+    display:none!important;
+  }
+}
+
+@media (max-width:360px){
+  body:not(.city-start-mode) .topbar{
+    grid-template-columns:minmax(0,1fr) minmax(136px,1fr)!important;
+    padding-left:9px!important;
+    padding-right:9px!important;
+    column-gap:6px!important;
+  }
+  body:not(.city-start-mode) .topbar .brand-logo,
+  body:not(.city-start-mode) .app-brand-top .brand-logo{max-width:118px!important;height:33px!important;}
+  body:not(.city-start-mode) #parametersBtn,
+  body:not(.city-start-mode) #changeCityBtn,
+  body:not(.city-start-mode) #realCasesBtn{font-size:10px!important;padding:0 7px!important;gap:5px!important;}
+}
+
+/* =========================================================
+   RU REVISION 17 — robust mobile/tablet result header
+   Dedicated header lives inside #mobileKpiScreen, because #app
+   is intentionally hidden at <=820px. Desktop remains untouched.
+   ========================================================= */
+@media (max-width:820px){
+  body:not(.city-start-mode) #mobileKpiScreen.mobile-calc-screen{
+    padding-top:calc(env(safe-area-inset-top,0px) + 10px)!important;
+  }
+
+  body:not(.city-start-mode) #mobileKpiScreen.mobile-calc-screen::before,
+  body:not(.city-start-mode) #mobileKpiScreen.mobile-calc-screen::after{
+    content:none!important;
+    display:none!important;
+  }
+
+  .mobile-result-header{
+    display:grid!important;
+    width:100%!important;
+    gap:8px!important;
+    margin:0 0 2px!important;
+    padding:0!important;
+    position:relative!important;
+    z-index:30!important;
+    box-sizing:border-box!important;
+  }
+
+  .mobile-result-header-row1{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) minmax(148px,44%)!important;
+    gap:8px!important;
+    width:100%!important;
+    min-height:50px!important;
+    align-items:center!important;
+    box-sizing:border-box!important;
+  }
+
+  .mobile-result-brand{
+    display:flex!important;
+    align-items:center!important;
+    justify-content:flex-start!important;
+    min-width:0!important;
+    height:50px!important;
+    padding:0 4px!important;
+    background:transparent!important;
+    overflow:hidden!important;
+  }
+  .mobile-result-brand img{
+    display:block!important;
+    width:auto!important;
+    height:36px!important;
+    max-width:142px!important;
+    object-fit:contain!important;
+  }
+
+  .mobile-result-header #mobileChangeCityBtn{
+    display:inline-flex!important;
+    position:static!important;
+    inset:auto!important;
+    transform:none!important;
+    width:100%!important;
+    min-width:0!important;
+    max-width:none!important;
+    height:44px!important;
+    min-height:44px!important;
+    margin:0!important;
+    padding:0 11px!important;
+    align-items:center!important;
+    justify-content:center!important;
+    gap:7px!important;
+    box-sizing:border-box!important;
+    border-radius:12px!important;
+    border:1px solid #9bc6e8!important;
+    background:linear-gradient(180deg,#f5faff 0%,#e5f2ff 100%)!important;
+    color:#174f79!important;
+    font:800 11px/1.1 var(--font)!important;
+    white-space:nowrap!important;
+    box-shadow:none!important;
+  }
+
+  .mobile-result-header .mobile-screen-actions,
+  body:not(.city-start-mode) #mobileKpiScreen .mobile-result-header .mobile-screen-actions{
+    display:grid!important;
+    position:static!important;
+    inset:auto!important;
+    transform:none!important;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+    gap:8px!important;
+    width:100%!important;
+    max-width:none!important;
+    height:auto!important;
+    min-height:44px!important;
+    margin:0!important;
+    padding:0!important;
+    z-index:auto!important;
+    overflow:visible!important;
+    box-sizing:border-box!important;
+  }
+
+  .mobile-result-header #mobileParametersBtn,
+  .mobile-result-header #mobileRealCasesBtn{
+    display:inline-flex!important;
+    position:static!important;
+    inset:auto!important;
+    transform:none!important;
+    width:100%!important;
+    min-width:0!important;
+    max-width:none!important;
+    height:44px!important;
+    min-height:44px!important;
+    margin:0!important;
+    padding:0 9px!important;
+    align-items:center!important;
+    justify-content:center!important;
+    gap:7px!important;
+    box-sizing:border-box!important;
+    border-radius:12px!important;
+    font:800 10.5px/1.1 var(--font)!important;
+    white-space:nowrap!important;
+    box-shadow:none!important;
+  }
+  .mobile-result-header #mobileParametersBtn{
+    color:#735b00!important;
+    background:linear-gradient(180deg,#fffaf0 0%,#fff1c7 100%)!important;
+    border:1px solid #e3c463!important;
+  }
+  .mobile-result-header #mobileRealCasesBtn{
+    color:#173b63!important;
+    background:linear-gradient(180deg,#f8fbfe 0%,#eef4fa 100%)!important;
+    border:1px solid #b8c8da!important;
+  }
+  .mobile-result-header #mobileChangeCityBtn svg,
+  .mobile-result-header #mobileParametersBtn svg,
+  .mobile-result-header #mobileRealCasesBtn svg{
+    width:17px!important;
+    height:17px!important;
+    flex:0 0 17px!important;
+  }
+
+  /* Desktop header is not part of the mobile rendering surface. */
+  body:not(.city-start-mode) #app .topbar{display:none!important;}
+
+  .mobile-kpi-content{
+    padding-top:0!important;
+  }
+}
+
+@media (max-width:380px){
+  .mobile-result-header-row1{
+    grid-template-columns:minmax(0,1fr) 144px!important;
+    gap:6px!important;
+  }
+  .mobile-result-brand img{height:33px!important;max-width:122px!important;}
+  .mobile-result-header #mobileChangeCityBtn{font-size:10px!important;padding:0 7px!important;gap:5px!important;}
+  .mobile-result-header #mobileParametersBtn,
+  .mobile-result-header #mobileRealCasesBtn{font-size:9.8px!important;padding:0 6px!important;gap:5px!important;}
+}
+
+
+/* Revision 18 — ensure mobile change-city button is visible on mobile/tablet */
+@media (max-width:820px){
+  body:not(.city-start-mode) #mobileKpiScreen .mobile-result-header #mobileChangeCityBtn,
+  body:not(.city-start-mode) .mobile-result-header #mobileChangeCityBtn{
+    display:inline-flex!important;
+    visibility:visible!important;
+    opacity:1!important;
+  }
+}
+
+
+/* =========================================================
+   REVISION 19 — final mobile header grid
+   Logo on its own row; Parameters + Change city equal; Real cases full width
+   ========================================================= */
+@media (max-width:820px){
+  #mobileKpiScreen .mobile-result-header{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    gap:8px!important;
+    width:100%!important;
+  }
+  #mobileKpiScreen .mobile-result-header-row1{
+    display:flex!important;
+    width:100%!important;
+    min-height:48px!important;
+    align-items:center!important;
+    justify-content:flex-start!important;
+    grid-template-columns:none!important;
+  }
+  #mobileKpiScreen .mobile-result-brand{
+    width:100%!important;
+    height:48px!important;
+    padding:0 4px!important;
+  }
+  #mobileKpiScreen .mobile-result-brand img{
+    height:36px!important;
+    max-width:142px!important;
+  }
+  body:not(.city-start-mode) #mobileKpiScreen .mobile-result-header .mobile-screen-actions,
+  #mobileKpiScreen .mobile-result-header .mobile-screen-actions{
+    position:static!important;
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+    gap:8px!important;
+    width:100%!important;
+    max-width:none!important;
+    margin:0!important;
+    padding:0!important;
+  }
+  #mobileKpiScreen .mobile-result-header .mobile-screen-actions #mobileParametersBtn,
+  #mobileKpiScreen .mobile-result-header .mobile-screen-actions #mobileChangeCityBtn{
+    grid-column:auto!important;
+    display:inline-flex!important;
+    width:100%!important;
+    min-width:0!important;
+    max-width:none!important;
+    height:44px!important;
+    min-height:44px!important;
+    margin:0!important;
+    align-items:center!important;
+    justify-content:center!important;
+    box-sizing:border-box!important;
+    visibility:visible!important;
+    opacity:1!important;
+  }
+  #mobileKpiScreen .mobile-result-header .mobile-screen-actions #mobileRealCasesBtn{
+    grid-column:1 / -1!important;
+    display:inline-flex!important;
+    width:100%!important;
+    min-width:0!important;
+    max-width:none!important;
+    height:44px!important;
+    min-height:44px!important;
+    margin:0!important;
+    align-items:center!important;
+    justify-content:center!important;
+    box-sizing:border-box!important;
+    visibility:visible!important;
+    opacity:1!important;
+  }
+}
+@media (max-width:380px){
+  #mobileKpiScreen .mobile-result-header-row1{
+    display:flex!important;
+    grid-template-columns:none!important;
+  }
+  #mobileKpiScreen .mobile-result-header .mobile-screen-actions{
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+    gap:6px!important;
+  }
+}
